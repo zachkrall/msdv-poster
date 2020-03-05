@@ -32,7 +32,7 @@ const sketch = p => {
     canvas = p.createCanvas(window.innerWidth, window.innerHeight, p.WEBGL);
     canvas.parent("#canvas");
     // create texture canvas
-    txtre = p.createGraphics(1200, 1200);
+    txtre = p.createGraphics(800, 800);
     // set theme colors
     p.updateColors();
     p.updateMessage();
@@ -73,10 +73,10 @@ const sketch = p => {
     txtre.background(bgcolor);
     txtre.fill(fgcolor);
     txtre.textSize(40);
-    txtre.textFont(config.fontFamily);
+    txtre.textFont(fontFamily);
     txtre.textAlign(p.LEFT, p.TOP);
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 9; i++) {
       txtre.text(
         p.repeatString(inputTextValue.toUpperCase(), 20),
         txt_pos - i * 100,
@@ -106,10 +106,10 @@ const sketch = p => {
     // }
 
     p.push();
-    p.translate(0, 90, -600);
+    p.translate(0, 90, -450);
     p.push();
     p.rotateX(Math.sin(p.frameCount * 0.001) + p.frameCount * 0.001 * -1);
-    p.rotateY(p.frameCount * 0.001);
+    p.rotateY(p.frameCount * 0.005);
     p.drawCube(0, 0, Math.sin(p.frameCount * 0.001), txtre);
     p.pop();
     p.push();
