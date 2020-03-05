@@ -106,7 +106,11 @@ const sketch = p => {
     // }
 
     p.push();
-    p.translate(0, 90, -450);
+    if (p.width < p.height) {
+      p.translate(0, 90, -600);
+    } else {
+      p.translate(p.width * 0.25, 0, -600);
+    }
     p.push();
     p.rotateX(Math.sin(p.frameCount * 0.001) + p.frameCount * 0.001 * -1);
     p.rotateY(p.frameCount * 0.005);
@@ -164,7 +168,7 @@ const sketch = p => {
       config.eventTitle,
       normX + 20,
       normY + 220,
-      p.width - 100,
+      1080 - 100,
       p.height - 100
     );
     p.pop();
