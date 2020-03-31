@@ -16,7 +16,8 @@ let vm = new Vue({
     time: config.time,
     location: config.location,
     school: config.school,
-    department: config.department
+    department: config.department,
+    title: config.title
   }
 })
 
