@@ -1,196 +1,166 @@
-const config = require("./config.js");
-const colors = require("./colors.js");
-const moment = require("moment");
+const moment = require('moment')
+const colors = require('./colors.js')
+const config = require('../poster.config.js')
 
 const sketch = p => {
-  // Global Variables
-  let txtre,
-    canvas,
-    theme = colors[0],
-    txt_pos = 0,
-    fgcolor = theme[0],
-    bgcolor = theme[1],
-    message_string,
-    message_counter = 0,
-    message_options = [
-      config.eventTitle,
-      config.department,
-      config.school,
-      config.location.replace(/\n/g, " - ")
-    ],
-    fontFamily,
-    normX = 0,
-    normY = 0;
+  let fontface
+  let c = 0
+  let pause = 0
+  let pause_duration = 70
+  let rotation_angle = 90
+
+  // normalized coordinates
+  normX = 0
+  normY = 0
+
+  // declare texture variables
+  let texture1
+  let texture2
+
+  let featuredTextPos = 0
+  let featuredTextArray = [
+    config.title,
+    config.school,
+    config.department,
+    config.time,
+    ...config.students
+  ]
+  let featuredText = featuredTextArray[0]
 
   p.preload = () => {
-    fontFamily = p.loadFont("../fonts/FivoSansModern-Medium.otf");
-  };
+    fontface = p.loadFont('./fonts/NeueDisplay-Wide.otf')
+  }
 
-  // Set Up Canvas
   p.setup = () => {
-    // create canvas and append to div
-    canvas = p.createCanvas(window.innerWidth, window.innerHeight, p.WEBGL);
-    canvas.parent("#canvas");
-    // create texture canvas
-    txtre = p.createGraphics(800, 800);
-    // set theme colors
-    p.updateColors();
-    p.updateMessage();
+    p.createCanvas(window.innerWidth, window.innerHeight, p.WEBGL)
 
-    p.textFont(fontFamily);
+    p.textFont(fontface)
 
-    normX = p.width * -0.5;
-    normY = p.height * -0.5;
-  };
+    texture1 = p.createGraphics(800, 800)
+    texture2 = p.createGraphics(800, 800)
 
-  // function for randomly selecting theme colors
-  p.updateColors = () => {
-    let new_theme = colors[parseInt(colors.length * Math.random())];
+    normX = p.width * -0.5
+    normY = p.height * -0.5
 
-    if (new_theme[0] == theme[0]) {
-      p.updateColors();
-    } else {
-      theme = new_theme;
-      bgcolor = new_theme[1];
-      fgcolor = new_theme[0];
-    }
-  };
+    p.noStroke()
+  }
 
-  p.updateMessage = () => {
-    message = message_options[message_counter % message_options.length];
-    message_counter++;
-  };
+  p.title = () => {
+    p.push()
+    p.fill(colors['Parsons Red'])
+    p.textSize(100)
 
-  p.repeatString = (string, repeat) => {
-    let new_string = string;
-    for (let i = 0; i < repeat; i++) {
-      new_string += " " + string;
-    }
-    return new_string;
-  };
+    p.textAlign(p.CENTER, p.CENTER)
+    p.text(config.title, 0, 0, 0)
+    p.pop()
+  }
 
-  p.txtre = inputTextValue => {
-    txtre.background(bgcolor);
-    txtre.fill(fgcolor);
-    txtre.textSize(40);
-    txtre.textFont(fontFamily);
-    txtre.textAlign(p.LEFT, p.TOP);
+  p.cube = ({ c, x = 0, y = 0, z = 0, size = 300, texture } = {}) => {
+    p.push()
+    p.translate(x, y, z)
 
-    for (let i = 0; i < 9; i++) {
-      txtre.text(
-        p.repeatString(inputTextValue.toUpperCase(), 20),
-        txt_pos - i * 100,
-        i * 70
-      );
+    p.push()
+
+    p.noStroke()
+
+    if (texture) {
+      p.texture(texture)
+      p.textureMode(p.NORMAL)
     }
 
-    // txtre.rect(txt_pos + 500, 100, 10, 10);
+    let r = c => (p.PI / 180) * c
+    p.rotateX(r(c))
+    p.rotateY(r(c))
+    p.box(size)
 
-    if (txt_pos < -500) {
-      txt_pos = 0;
-    } else {
-      txt_pos -= 0.9;
-    }
-  };
+    p.pop()
+    p.pop()
+  }
+
+  p.drawTexture1 = ({ t, c } = {}) => {
+    t.background(colors['Parsons Red'])
+
+    t.push()
+    t.noStroke()
+    // font settings
+    t.textFont(fontface)
+    t.textSize(t.width * 0.1)
+    t.textAlign(t.CENTER, t.CENTER)
+
+    // translation
+    t.translate(t.width * -0.21, t.height * 0.47)
+    t.rotate((t.PI / 180) * -45)
+
+    t.fill(colors['White'])
+    t.text(featuredText, 20, 20, t.width - 40, t.height - 40)
+
+    t.pop()
+  }
+
+  p.drawTexture2 = ({ t } = {}) => {
+    t.background(colors['Parsons Red'])
+    t.fill(255, 50)
+    t.push()
+
+    // font settings
+    t.textFont(fontface)
+    t.textSize(t.width * 0.1)
+    t.textAlign(t.CENTER, t.CENTER)
+
+    // translation
+    t.translate(t.width * 0.5, t.height * -0.21)
+    t.rotate((t.PI / 180) * 45)
+
+    // write text
+    t.text(config['title'], 0, 0, t.width, t.height)
+
+    t.pop()
+  }
 
   p.draw = () => {
-    p.background(bgcolor);
+    p.background(colors['Parsons Red'])
 
-    p.txtre(message);
+    p.drawTexture1({ t: texture1, c })
+    p.drawTexture2({ t: texture2 })
 
-    if (p.frameCount % 80 == 0) {
-      p.updateMessage();
+    let size = p.width < 1000 ? 300 : 500
+    let offset = Math.sqrt(Math.pow(size, 2) + Math.pow(size, 2)) - 200
+
+    p.cube({ c, size, x: 0, y: -10, z: 200, texture: texture1 })
+    p.cube({ c, size, x: offset, y: -10, z: 100, texture: texture2 })
+    p.cube({ c, size, x: offset * -1, y: -10, z: 100, texture: texture2 })
+
+    p.counter()
+  }
+
+  p.counter = () => {
+    if (pause >= pause_duration) {
+      pause = 0
+      c = 0
     }
-    // if (p.frameCount % (80 * message_options.length) == 0) {
-    //   p.updateColors();
-    // }
-
-    p.push();
-    if (p.width < p.height) {
-      p.translate(0, 90, -600);
+    if (c == rotation_angle * 0.3) {
+      p.updateFeaturedText()
+    }
+    if (c >= rotation_angle && pause < pause_duration) {
+      pause++
+    } else if (pause < 1 && c < rotation_angle) {
+      c++
     } else {
-      p.translate(p.width * 0.25, 0, -600);
+      c = 0
     }
-    p.push();
-    p.rotateX(Math.sin(p.frameCount * 0.001) + p.frameCount * 0.001 * -1);
-    p.rotateY(p.frameCount * 0.005);
-    p.drawCube(0, 0, Math.sin(p.frameCount * 0.001), txtre);
-    p.pop();
-    p.push();
-    p.rotateX(p.frameCount * 0.001 * -1);
-    p.rotateY(p.frameCount * 0.001);
-    p.drawCube(0, 0, 0, txtre);
-    p.pop();
-    p.pop();
+  }
 
-    p.fill(fgcolor);
+  p.updateCanvasSize = (w, h) => {
+    console.log('resize canvas', w, h)
+    normX = p.width * -0.5
+    normY = p.height * -0.5
+    p.resizeCanvas(w, h)
+  }
 
-    p.textSize(60);
-    p.textAlign(p.LEFT, p.TOP);
-    p.text(
-      moment(config.date)
-        .format("ddd")
-        .toUpperCase(),
-      normX + 20,
-      normY + 33,
-      p.width,
-      p.height
-    );
-    p.textSize(70);
-    p.textAlign(p.LEFT, p.TOP);
-    p.text(
-      moment(config.date).format("M/DD"),
-      normX + 20,
-      normY + 90,
-      p.width,
-      p.height
-    );
-    p.text(config.time, normX + 300, normY + 90, p.width, p.height);
+  p.updateFeaturedText = () => {
+    featuredTextPos++
+    featuredText = featuredTextArray[featuredTextPos % featuredTextArray.length]
+  }
+}
 
-    // p.textAlign(p.LEFT, p.BOTTOM);
-    p.push();
-    p.textSize(60);
-    p.textLeading(70);
-    p.text(
-      config.location,
-      normX + 20,
-      normY + p.height - 70 * 3 - 20,
-      p.width - 40,
-      p.height * 0.5
-    );
-    p.pop();
-
-    p.push();
-    p.textSize(110);
-    p.textLeading(100);
-    p.textAlign(p.LEFT, p.TOP);
-    p.text(
-      config.eventTitle,
-      normX + 20,
-      normY + 220,
-      1080 - 100,
-      p.height - 100
-    );
-    p.pop();
-  };
-
-  p.drawCube = (x = 0, y = 0, z = 0, texture) => {
-    p.push();
-    if (texture) {
-      p.texture(texture);
-      p.textureMode(p.NORMAL);
-    }
-    p.noStroke();
-    p.translate(x, y, z);
-    p.sphere(600);
-    p.pop();
-  };
-
-  p.updateCanvasSize = (width, height) => {
-    p.resizeCanvas(width, height);
-    normX = p.width * -0.5;
-    normY = p.height * -0.5;
-  };
-};
-
-module.exports = sketch;
+module.exports = sketch

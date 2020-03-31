@@ -1,6 +1,14 @@
-@import url("https://rsms.me/inter/inter.css");
+@font-face {
+  font-family: 'Neue';
+  src: url('../fonts/NeueDisplay-Random.otf') format('opentype');
+}
 
 @font-face {
-  font-family: "FivoSansModern-Medium";
-  src: url("../fonts/FivoSansModern-Medium.otf") format("opentype");
+  font-family: 'Neue Regular';
+  src: url('../fonts/Neue-Bold.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/Inter-Medium.ttf') format('truetype');
 }
