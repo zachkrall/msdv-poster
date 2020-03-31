@@ -21,12 +21,12 @@
           <div class="f2">{{ date }}</div>
         </div>
         <div class="dib">
-          <div class="f2">{{ title }}</div>
+          <div class="f2">{{ time }}</div>
         </div>
       </div>
 
       <div class="pa4 absolute bottom-0 right-0 w-50 tr">
-        <div class="f3" v-html="location.replace(/\n/g,'<br/>')"></div>
+        <div class="f3" v-html="title.replace(/\n/g,'<br/>')"></div>
       </div>
     </div>
     <script src="./dist/bundle.js"></script>
